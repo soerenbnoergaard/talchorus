@@ -102,7 +102,8 @@ protected:
     */
     int64_t getUniqueId() const override
     {
-        return d_cconst('d', 'L', 'a', 't');
+        /* sbn: I just made something up */
+        return d_cconst('d', 'L', 'b', 'y');
     }
 
    /* --------------------------------------------------------------------------------------------------------
