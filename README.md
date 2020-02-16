@@ -4,7 +4,7 @@ TalChorus is the chorus part of [TAL-NoiseMaker](https://tal-software.com/produc
 
 ## Download releases
 
-Releases of the plugin can be found [here](https://github.com/soerenbnoergaard/talchorus/releases).
+The plugin is only built for linux at the moment and only the VST version has been tested. The release can be downloaded from [here](https://github.com/soerenbnoergaard/talchorus/releases).
 
 ## Compiling the plugin
 
