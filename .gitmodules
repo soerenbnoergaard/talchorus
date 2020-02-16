@@ -1,3 +1,6 @@
 [submodule "DPF"]
 	path = dpf
 	url = https://github.com/DISTRHO/DPF.git
+[submodule "distrho-ports"]
+	path = distrho-ports
+	url = https://github.com/DISTRHO/DISTRHO-Ports.git
