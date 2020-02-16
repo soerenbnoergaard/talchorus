@@ -15,6 +15,7 @@
  */
 
 #include "DistrhoPlugin.hpp"
+#include "Effects/Chorus/ChorusEngine.h"
 
 START_NAMESPACE_DISTRHO
 
@@ -28,12 +29,14 @@ class TalChorusPlugin : public Plugin
 public:
     TalChorusPlugin() : Plugin(0, 0, 0) // 1st argument: Number of parameters
     {
+        chorusEngine = new ChorusEngine(getSampleRate());
         sampleRateChanged(getSampleRate());
+        chorusEngine->setEnablesChorus(true, false);
     }
 
     ~TalChorusPlugin() override
     {
-        // delete[] fBuffer;
+        delete chorusEngine;
     }
 
 protected:
@@ -157,11 +160,19 @@ protected:
     */
     void run(const float** inputs, float** outputs, uint32_t frames) override
     {
-        const float* const in  = inputs[0];
-        /* */ float* const out = outputs[0];
+        const float* const inL  = inputs[0];
+        const float* const inR  = inputs[1];
+        float* const outL = outputs[0];
+        float* const outR = outputs[1];
 
+        float sampleL;
+        float sampleR;
         for (uint32_t n = 0; n < frames; n++) {
-            out[n] = 0.5*in[n];
+            sampleL = inL[n];
+            sampleR = inR[n];
+            chorusEngine->process(&sampleL, &sampleR);
+            outL[n] = sampleL;
+            outR[n] = sampleR;
         }
     }
 
@@ -174,12 +185,14 @@ protected:
     */
     void sampleRateChanged(double newSampleRate) override
     {
+        chorusEngine->setSampleRate(newSampleRate);
     }
 
     // -------------------------------------------------------------------------------------------------------
 
 private:
 
+    ChorusEngine *chorusEngine;
 
    /**
       Set our plugin class as non-copyable and add a leak detector just in case.
