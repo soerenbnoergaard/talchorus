@@ -23,10 +23,10 @@ START_NAMESPACE_DISTRHO
 /**
   Plugin that demonstrates the latency API in DPF.
  */
-class LatencyExamplePlugin : public Plugin
+class TalChorusPlugin : public Plugin
 {
 public:
-    LatencyExamplePlugin()
+    TalChorusPlugin()
         : Plugin(1, 0, 0), // 1 parameter
           fLatency(1.0f),
           fLatencyInFrames(0),
@@ -37,7 +37,7 @@ public:
         sampleRateChanged(getSampleRate());
     }
 
-    ~LatencyExamplePlugin() override
+    ~TalChorusPlugin() override
     {
         delete[] fBuffer;
     }
@@ -52,7 +52,7 @@ protected:
     */
     const char* getLabel() const override
     {
-        return "Latency";
+        return "talchorus";
     }
 
    /**
@@ -60,7 +60,7 @@ protected:
     */
     const char* getDescription() const override
     {
-        return "Plugin that demonstrates the latency API in DPF.";
+        return "Juno-like chorus extracted from TAL-NoiseMaker";
     }
 
    /**
@@ -68,7 +68,7 @@ protected:
     */
     const char* getMaker() const override
     {
-        return "DISTRHO";
+        return "soerenbnoergaard";
     }
 
    /**
@@ -76,7 +76,7 @@ protected:
     */
     const char* getHomePage() const override
     {
-        return "https://github.com/DISTRHO/DPF";
+        return "https://github.com/soerenbnoergaard/talchorus";
     }
 
    /**
@@ -85,7 +85,7 @@ protected:
     */
     const char* getLicense() const override
     {
-        return "ISC";
+        return "GPL";
     }
 
    /**
@@ -235,7 +235,7 @@ private:
    /**
       Set our plugin class as non-copyable and add a leak detector just in case.
     */
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LatencyExamplePlugin)
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TalChorusPlugin)
 };
 
 /* ------------------------------------------------------------------------------------------------------------
@@ -243,7 +243,7 @@ private:
 
 Plugin* createPlugin()
 {
-    return new LatencyExamplePlugin();
+    return new TalChorusPlugin();
 }
 
 // -----------------------------------------------------------------------------------------------------------
