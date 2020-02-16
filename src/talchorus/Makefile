@@ -1,18 +1,24 @@
-.PHONY: all init build clean cleanall
+#!/usr/bin/make -f
+# Makefile for DISTRHO Plugins #
+# ---------------------------- #
+# Created by falkTX
+#
 
-DPF_PATH=DPF
-NAME = d_talchorus
+# --------------------------------------------------------------
+# Project name, used for binaries
+
+NAME = talchorus
 
 # --------------------------------------------------------------
 # Files to build
 
 FILES_DSP = \
-	main.cpp
+	TalChorus.cpp
 
 # --------------------------------------------------------------
 # Do some magic
 
-include $(DPF_PATH)/Makefile.plugins.mk
+include ../../dpf/Makefile.plugins.mk
 
 # --------------------------------------------------------------
 # Enable all possible plugin types
@@ -26,11 +32,5 @@ TARGETS += lv2_dsp
 TARGETS += vst
 
 all: $(TARGETS)
-
-
-# --------------------------------------------------------------
-#  Additional rules by soerenbnoergaard
-init:
-	make -C DPF
 
 # --------------------------------------------------------------
