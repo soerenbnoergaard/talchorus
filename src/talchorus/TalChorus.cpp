@@ -26,20 +26,14 @@ START_NAMESPACE_DISTRHO
 class TalChorusPlugin : public Plugin
 {
 public:
-    TalChorusPlugin()
-        : Plugin(1, 0, 0), // 1 parameter
-          fLatency(1.0f),
-          fLatencyInFrames(0),
-          fBuffer(nullptr),
-          fBufferPos(0)
+    TalChorusPlugin() : Plugin(0, 0, 0) // 1st argument: Number of parameters
     {
-        // allocates buffer
         sampleRateChanged(getSampleRate());
     }
 
     ~TalChorusPlugin() override
     {
-        delete[] fBuffer;
+        // delete[] fBuffer;
     }
 
 protected:
@@ -93,7 +87,7 @@ protected:
     */
     uint32_t getVersion() const override
     {
-        return d_version(1, 0, 0);
+        return d_version(0, 0, 1);
     }
 
    /**
@@ -102,7 +96,7 @@ protected:
     */
     int64_t getUniqueId() const override
     {
-        /* sbn: I just made something up */
+        /* soerenbnoergaard: I just made something up */
         return d_cconst('d', 'L', 'b', 'y');
     }
 
@@ -118,13 +112,13 @@ protected:
         if (index != 0)
             return;
 
-        parameter.hints  = kParameterIsAutomable;
-        parameter.name   = "Latency";
-        parameter.symbol = "latency";
-        parameter.unit   = "s";
-        parameter.ranges.def = 1.0f;
-        parameter.ranges.min = 0.0f;
-        parameter.ranges.max = 5.0f;
+        /* parameter.hints  = kParameterIsAutomable; */
+        /* parameter.name   = "Latency"; */
+        /* parameter.symbol = "latency"; */
+        /* parameter.unit   = "s"; */
+        /* parameter.ranges.def = 1.0f; */
+        /* parameter.ranges.min = 0.0f; */
+        /* parameter.ranges.max = 5.0f; */
     }
 
    /* --------------------------------------------------------------------------------------------------------
@@ -139,7 +133,7 @@ protected:
         if (index != 0)
             return 0.0f;
 
-        return fLatency;
+        return 0;
     }
 
    /**
@@ -152,11 +146,6 @@ protected:
     {
         if (index != 0)
             return;
-
-        fLatency = value;
-        fLatencyInFrames = value*getSampleRate();
-
-        setLatency(fLatencyInFrames);
     }
 
    /* --------------------------------------------------------------------------------------------------------
@@ -171,33 +160,8 @@ protected:
         const float* const in  = inputs[0];
         /* */ float* const out = outputs[0];
 
-        if (fLatencyInFrames == 0)
-        {
-            if (out != in)
-                std::memcpy(out, in, sizeof(float)*frames);
-            return;
-        }
-
-        // Put the new audio in the buffer.
-        std::memcpy(fBuffer+fBufferPos, in, sizeof(float)*frames);
-        fBufferPos += frames;
-
-        // buffer is not filled enough yet
-        if (fBufferPos < fLatencyInFrames+frames)
-        {
-            // silence output
-            std::memset(out, 0, sizeof(float)*frames);
-        }
-        // buffer is ready to copy
-        else
-        {
-            // copy latency buffer to output
-            const uint32_t readPos = fBufferPos-fLatencyInFrames-frames;
-            std::memcpy(out, fBuffer+readPos, sizeof(float)*frames);
-
-            // move latency buffer back by some frames
-            std::memmove(fBuffer, fBuffer+frames, sizeof(float)*fBufferPos);
-            fBufferPos -= frames;
+        for (uint32_t n = 0; n < frames; n++) {
+            out[n] = 0.5*in[n];
         }
     }
 
@@ -210,28 +174,12 @@ protected:
     */
     void sampleRateChanged(double newSampleRate) override
     {
-        if (fBuffer != nullptr)
-            delete[] fBuffer;
-
-        const uint32_t maxFrames = newSampleRate*6; // 6 seconds
-
-        fBuffer = new float[maxFrames];
-        std::memset(fBuffer, 0, sizeof(float)*maxFrames);
-
-        fLatencyInFrames = fLatency*newSampleRate;
-        fBufferPos       = 0;
     }
 
     // -------------------------------------------------------------------------------------------------------
 
 private:
-    // Parameters
-    float fLatency;
-    uint32_t fLatencyInFrames;
 
-    // Buffer for previous audio, size depends on sample rate
-    float* fBuffer;
-    uint32_t fBufferPos;
 
    /**
       Set our plugin class as non-copyable and add a leak detector just in case.
