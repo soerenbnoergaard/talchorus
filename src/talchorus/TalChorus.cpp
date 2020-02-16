@@ -19,6 +19,9 @@
 
 START_NAMESPACE_DISTRHO
 
+#define PARAMETER_INDEX_CHORUS_1_ENABLED 0
+#define PARAMETER_INDEX_CHORUS_2_ENABLED 1
+
 // -----------------------------------------------------------------------------------------------------------
 
 /**
@@ -27,11 +30,12 @@ START_NAMESPACE_DISTRHO
 class TalChorusPlugin : public Plugin
 {
 public:
-    TalChorusPlugin() : Plugin(0, 0, 0) // 1st argument: Number of parameters
+    TalChorusPlugin() : Plugin(2, 0, 0) // 1st argument: Number of parameters
     {
         chorusEngine = new ChorusEngine(getSampleRate());
         sampleRateChanged(getSampleRate());
-        chorusEngine->setEnablesChorus(true, false);
+        setParameterValue(0, chorus1enabled);
+        setParameterValue(1, chorus2enabled);
     }
 
     ~TalChorusPlugin() override
@@ -112,16 +116,30 @@ protected:
     */
     void initParameter(uint32_t index, Parameter& parameter) override
     {
-        if (index != 0)
-            return;
+        switch (index) {
+        case PARAMETER_INDEX_CHORUS_1_ENABLED:
+            parameter.hints  = kParameterIsAutomable;
+            parameter.name   = "Chorus1";
+            parameter.symbol = "chorus1";
+            parameter.unit   = "bool";
+            parameter.ranges.def = 1.0f;
+            parameter.ranges.min = 0.0f;
+            parameter.ranges.max = 1.0f;
+            break;
 
-        /* parameter.hints  = kParameterIsAutomable; */
-        /* parameter.name   = "Latency"; */
-        /* parameter.symbol = "latency"; */
-        /* parameter.unit   = "s"; */
-        /* parameter.ranges.def = 1.0f; */
-        /* parameter.ranges.min = 0.0f; */
-        /* parameter.ranges.max = 5.0f; */
+        case PARAMETER_INDEX_CHORUS_2_ENABLED:
+            parameter.hints  = kParameterIsAutomable;
+            parameter.name   = "Chorus2";
+            parameter.symbol = "chorus2";
+            parameter.unit   = "bool";
+            parameter.ranges.def = 1.0f;
+            parameter.ranges.min = 0.0f;
+            parameter.ranges.max = 1.0f;
+            break;
+
+        default:
+            break;
+        }
     }
 
    /* --------------------------------------------------------------------------------------------------------
@@ -133,10 +151,18 @@ protected:
     */
     float getParameterValue(uint32_t index) const override
     {
-        if (index != 0)
-            return 0.0f;
+        switch (index) {
+        case PARAMETER_INDEX_CHORUS_1_ENABLED:
+            return chorus1enabled;
+            break;
 
-        return 0;
+        case PARAMETER_INDEX_CHORUS_2_ENABLED:
+            return chorus2enabled;
+            break;
+
+        default:
+            break;
+        }
     }
 
    /**
@@ -147,8 +173,18 @@ protected:
     */
     void setParameterValue(uint32_t index, float value) override
     {
-        if (index != 0)
-            return;
+        switch (index) {
+        case PARAMETER_INDEX_CHORUS_1_ENABLED:
+            chorus1enabled = value;
+            break;
+        case PARAMETER_INDEX_CHORUS_2_ENABLED:
+            chorus2enabled = value;
+            break;
+        default:
+            break;
+        }
+
+        chorusEngine->setEnablesChorus(chorus1enabled>0.5f, chorus2enabled>0.5f);
     }
 
    /* --------------------------------------------------------------------------------------------------------
@@ -167,6 +203,7 @@ protected:
 
         float sampleL;
         float sampleR;
+
         for (uint32_t n = 0; n < frames; n++) {
             sampleL = inL[n];
             sampleR = inR[n];
@@ -193,6 +230,8 @@ protected:
 private:
 
     ChorusEngine *chorusEngine;
+    float chorus1enabled = 1.0f;
+    float chorus2enabled = 0.0f;
 
    /**
       Set our plugin class as non-copyable and add a leak detector just in case.
